@@ -29,7 +29,7 @@ class ProjectileType(IntEnum):
     FIRE_PEA = 6            # 火焰豌豆 (通过火炬树桩)
     STAR = 7                # 杨桃星星
     CACTUS_SPIKE = 8        # 仙人掌尖刺
-    FUME = 9                # 大喷菇烟雾 (not actually a projectile, but tracked)
+    FUME = 9                # 大喷菇烟雾 (tracked as visual effect, damage handled differently)
     BASKETBALL = 10         # 投篮僵尸的篮球
     COB = 11                # 玉米炮炮弹
     BUTTER = 12             # 玉米投手黄油

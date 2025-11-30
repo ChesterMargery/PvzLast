@@ -156,11 +156,13 @@ ZOMBIE_HEALTH: dict[ZombieType, ZombieHealth] = {
     # Source: Zombie.cpp line 348: mBodyHealth = 3000
     ZombieType.GARGANTUAR: ZombieHealth(body=3000, armor=0, shield=0),
     
-    # Source: Zombie.cpp line 614: mBodyHealth = 70 (IZombie level)
-    # Normal mode IMP has body HP around 270-300
-    ZombieType.IMP: ZombieHealth(body=70, armor=0, shield=0),
+    # IMP: 270 HP normally, but 70 HP in I, Zombie levels (line 614)
+    # Using 270 for standard gameplay
+    ZombieType.IMP: ZombieHealth(body=270, armor=0, shield=0),
     
-    # Source: Zombie.cpp line 624: mBodyHealth = 40000 (adventure) / 60000 (other)
+    # ZOMBOSS: 40000 HP (adventure mode) or 60000 HP (other modes)
+    # Source: Zombie.cpp line 624
+    # Using adventure mode value for standard gameplay
     ZombieType.ZOMBOSS: ZombieHealth(body=40000, armor=0, shield=0),
     
     # Source: Zombie.cpp line 382: mBodyHealth = 6000
@@ -196,8 +198,8 @@ ZOMBIE_HP_DATA = {
     ZombieType.LADDER: (500, 500),  # Body + ladder (shield)
     ZombieType.CATAPULT: (850, 0),  # Basketball machine
     ZombieType.GARGANTUAR: (3000, 0),
-    ZombieType.IMP: (70, 0),
-    ZombieType.ZOMBOSS: (40000, 0),  # Dr. Zomboss
+    ZombieType.IMP: (270, 0),  # 270 standard, 70 in I, Zombie
+    ZombieType.ZOMBOSS: (40000, 0),  # Adventure mode; 60000 in other modes
     ZombieType.GIGA_GARGANTUAR: (6000, 0),
 }
 
