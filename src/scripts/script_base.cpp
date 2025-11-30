@@ -36,10 +36,10 @@ void ScriptBase::Run() {
     
     m_isRunning = true;
     
-    while (m_isRunning && IsGameRunning()) {
+    while (m_isRunning && PvzLast::IsGameRunning()) {
         // 获取当前游戏时间
-        int currentWave = GetCurrentWave();
-        int currentTick = GetGameClock();
+        int currentWave = PvzLast::GetCurrentWave();
+        int currentTick = PvzLast::GetGameClock();
         TimeStamp currentTime(currentWave, currentTick);
         
         // 执行到期的操作
@@ -113,9 +113,9 @@ void ScriptBase::RemovePlant(int row, int col) {
 void ScriptBase::WaitUntil(int wave, int tick) {
     TimeStamp target(wave, tick);
     
-    while (m_isRunning && IsGameRunning()) {
-        int currentWave = GetCurrentWave();
-        int currentTick = GetGameClock();
+    while (m_isRunning && PvzLast::IsGameRunning()) {
+        int currentWave = PvzLast::GetCurrentWave();
+        int currentTick = PvzLast::GetGameClock();
         TimeStamp current(currentWave, currentTick);
         
         if (!(current < target)) {

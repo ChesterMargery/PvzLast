@@ -44,10 +44,36 @@ bool MemoryManager::IsAttached() const {
 
 bool MemoryManager::AttachToGame() {
 #ifdef _WIN32
-    // 查找游戏窗口
-    HWND hwnd = FindWindowW(L"MainWindow", L"Plants vs. Zombies");
+    // 查找游戏窗口 - 尝试多种可能的窗口标题
+    const wchar_t* windowTitles[] = {
+        L"Plants vs. Zombies",
+        L"植物大战僵尸",
+        L"植物大战僵尸中文版",
+        L"PlantsVsZombies"
+    };
+    
+    HWND hwnd = nullptr;
+    for (const auto& title : windowTitles) {
+        hwnd = FindWindowW(nullptr, title);
+        if (hwnd != nullptr) {
+            break;
+        }
+    }
+    
+    // 也尝试查找游戏特定的窗口类
     if (hwnd == nullptr) {
-        hwnd = FindWindowW(nullptr, L"植物大战僵尸");
+        hwnd = FindWindowW(L"MainWindow", nullptr);
+        // 验证是否是 PvZ 窗口
+        if (hwnd != nullptr) {
+            wchar_t windowTitle[256];
+            GetWindowTextW(hwnd, windowTitle, 256);
+            std::wstring title(windowTitle);
+            if (title.find(L"Plants") == std::wstring::npos && 
+                title.find(L"植物") == std::wstring::npos &&
+                title.find(L"Zombie") == std::wstring::npos) {
+                hwnd = nullptr;  // 不是 PvZ 窗口
+            }
+        }
     }
     
     if (hwnd == nullptr) {

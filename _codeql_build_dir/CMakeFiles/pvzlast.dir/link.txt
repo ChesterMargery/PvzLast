@@ -1,0 +1,2 @@
+/usr/bin/ar qc libpvzlast.a CMakeFiles/pvzlast.dir/src/core/pvzlast.cpp.o CMakeFiles/pvzlast.dir/src/memory/memory_utils.cpp.o CMakeFiles/pvzlast.dir/src/scripts/script_base.cpp.o
+/usr/bin/ranlib libpvzlast.a

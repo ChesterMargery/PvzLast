@@ -12,7 +12,7 @@
 ### 获取代码
 
 ```bash
-git clone https://github.com/ChesterMargery/PvzLast.git
+git clone <repository_url>
 cd PvzLast
 ```
 

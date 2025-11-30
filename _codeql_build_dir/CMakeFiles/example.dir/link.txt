@@ -1,0 +1,1 @@
+/home/runner/work/PvzLast/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/example.dir/link.d CMakeFiles/example.dir/examples/example_script.cpp.o -o example  libpvzlast.a

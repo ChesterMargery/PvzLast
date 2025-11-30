@@ -55,10 +55,13 @@ struct PlantData {
     
     /**
      * @brief 获取植物类型枚举
-     * @return 植物类型
+     * @return 植物类型，如果类型无效则返回 PlantType::Peashooter
      */
     PlantType GetPlantType() const {
-        return static_cast<PlantType>(type);
+        if (type >= 0 && type < static_cast<int>(PlantType::Count)) {
+            return static_cast<PlantType>(type);
+        }
+        return PlantType::Peashooter;
     }
 };
 
@@ -92,10 +95,13 @@ struct ZombieData {
     
     /**
      * @brief 获取僵尸类型枚举
-     * @return 僵尸类型
+     * @return 僵尸类型，如果类型无效则返回 ZombieType::Normal
      */
     ZombieType GetZombieType() const {
-        return static_cast<ZombieType>(type);
+        if (type >= 0 && type < static_cast<int>(ZombieType::Count)) {
+            return static_cast<ZombieType>(type);
+        }
+        return ZombieType::Normal;
     }
     
     /**
