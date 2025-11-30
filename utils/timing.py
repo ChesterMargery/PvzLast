@@ -14,6 +14,7 @@ All time values are in centiseconds (cs) = 1/100 second.
 Reference: data/constants.py for timing constants
 """
 
+import math
 from typing import Optional
 
 from data.constants import (
@@ -60,13 +61,14 @@ def get_cob_fly_time(scene: int = 0, target_col: Optional[int] = None) -> int:
         Flight time in centiseconds (cs)
     """
     if scene in (SCENE_ROOF, SCENE_ROOF_NIGHT):
-        if target_col is not None and 0 <= target_col <= 6:
+        if target_col is not None and 0 <= target_col <= 7:
             # ROOF_COB_FLY_TIME[0-6] corresponds to columns 1-7
             # For col 0, use col 1's time (359)
-            # For col 7+, use 373
+            # For col 7, use index 6 (373)
             if target_col == 0:
                 return ROOF_COB_FLY_TIME[0]  # 359
-            return ROOF_COB_FLY_TIME[target_col - 1]
+            elif target_col <= 7:
+                return ROOF_COB_FLY_TIME[min(target_col - 1, 6)]
         else:
             # Default to rightmost column time
             return COB_FLY_TIME  # 373

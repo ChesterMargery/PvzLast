@@ -16,6 +16,7 @@ Reference:
 - data/zombies.py for zombie types
 """
 
+import math
 from typing import List, Optional, Dict, Set, Tuple
 from enum import IntEnum
 
@@ -436,7 +437,6 @@ def recommend_cob_count_for_wave(spawn_data: List[int], wave_index: int) -> int:
     
     # Each normal Garg needs ~4 cobs (3000/900 = 3.33)
     # Each Giga needs ~7 cobs (6000/900 = 6.67)
-    import math
     cobs_for_gargs = normal_gargs * 4 + giga_gargs * 7
     
     # Base cobs for other zombies

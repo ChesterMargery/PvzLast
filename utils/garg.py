@@ -16,6 +16,7 @@ Reference:
 - AVZ judge.h for hammer detection logic
 """
 
+import math
 from typing import Optional, Tuple, Dict, List
 
 from data.constants import (
@@ -307,7 +308,6 @@ def cobs_to_kill_garg(current_hp: Optional[int] = None) -> int:
         Number of cob hits needed
     """
     hp = current_hp if current_hp is not None else GARG_MAX_HP
-    import math
     return math.ceil(hp / GARG_INSTANT_DAMAGE)
 
 
@@ -322,7 +322,6 @@ def cobs_to_kill_giga(current_hp: Optional[int] = None) -> int:
         Number of cob hits needed
     """
     hp = current_hp if current_hp is not None else GIGA_MAX_HP
-    import math
     return math.ceil(hp / GARG_INSTANT_DAMAGE)
 
 
@@ -474,7 +473,6 @@ def get_optimal_cob_count_for_gargs(garg_count: int, giga_count: int,
     # Normal Gargs need ~4 cobs at full HP (3000/900 = 3.33)
     # Gigas need ~7 cobs at full HP (6000/900 = 6.67)
     
-    import math
     garg_cobs = garg_count * math.ceil(GARG_MAX_HP * avg_hp_ratio / GARG_INSTANT_DAMAGE)
     giga_cobs = giga_count * math.ceil(GIGA_MAX_HP * avg_hp_ratio / GARG_INSTANT_DAMAGE)
     

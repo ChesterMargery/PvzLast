@@ -16,6 +16,7 @@ Reference:
 - data/zombies.py for zombie HP data
 """
 
+import math
 from typing import Optional, List, Tuple
 
 from data.constants import (
@@ -213,7 +214,6 @@ def cobs_needed_to_kill(zombie_type: int, current_hp: Optional[int] = None) -> i
     if damage_per_cob <= 0:
         return 999
     
-    import math
     return math.ceil(hp / damage_per_cob)
 
 
