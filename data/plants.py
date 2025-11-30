@@ -360,3 +360,139 @@ UPGRADE_PLANTS = {
     PlantType.SPIKEROCK: PlantType.SPIKEWEED,
     PlantType.COBCANNON: PlantType.KERNELPULT,  # Requires two kernel-pults
 }
+
+
+# ============================================================================
+# Plant Damage Values (per projectile)
+# Source: re-plants-vs-zombies Projectile.cpp gProjectileDefinition[] (line 14-28)
+# All values in HP damage per hit
+# ============================================================================
+
+PLANT_DAMAGE: dict[PlantType, int] = {
+    # Pea shooters - damage 20 per pea
+    # Source: Projectile.cpp line 14: PROJECTILE_PEA damage=20
+    PlantType.PEASHOOTER: 20,
+    PlantType.SNOW_PEA: 20,           # + slow effect
+    PlantType.REPEATER: 20,           # x2 shots per attack
+    PlantType.THREEPEATER: 20,        # fires to 3 rows
+    PlantType.SPLITPEA: 20,           # front and back
+    PlantType.GATLINGPEA: 20,         # x4 shots per attack
+
+    # Mushrooms
+    # Source: Projectile.cpp line 18: PROJECTILE_PUFF damage=20
+    PlantType.PUFFSHROOM: 20,
+    PlantType.SEASHROOM: 20,          # same as puffshroom
+    PlantType.SCAREDYSHROOM: 20,
+    # Source: Projectile.cpp line 20: PROJECTILE_FUME damage=20 (pierce)
+    PlantType.FUMESHROOM: 20,         # piercing, hits all zombies in range
+    PlantType.GLOOMSHROOM: 20,        # 8-directional, 4 hits per attack cycle
+
+    # Catapult plants
+    # Source: Projectile.cpp line 16: PROJECTILE_CABBAGE damage=40
+    PlantType.CABBAGEPULT: 40,
+    # Source: Projectile.cpp line 24: PROJECTILE_KERNEL damage=20
+    PlantType.KERNELPULT: 20,         # kernel; butter does 40 and stuns
+    # Source: Projectile.cpp line 17: PROJECTILE_MELON damage=80
+    PlantType.MELONPULT: 80,          # + splash damage 60 to nearby
+    # Source: Projectile.cpp line 19: PROJECTILE_WINTERMELON damage=80
+    PlantType.WINTERMELON: 80,        # + splash + slow effect
+
+    # Other ranged
+    # Source: Projectile.cpp line 21: PROJECTILE_STAR damage=20
+    PlantType.STARFRUIT: 20,          # fires 5 stars per attack
+    PlantType.CACTUS: 20,             # same as pea
+    PlantType.CATTAIL: 20,            # homing spikes
+
+    # Special plants
+    # Source: Projectile.cpp line 25: PROJECTILE_COBBIG damage=300
+    PlantType.COBCANNON: 300,         # 3x3 AOE explosion
+    # Source: Projectile.cpp line 22: PROJECTILE_SPIKE damage=20
+    PlantType.SPIKEWEED: 20,          # damage per contact
+    PlantType.SPIKEROCK: 20,          # same damage, more durability
+
+    # Instant kill plants (1800 damage = kills any non-Gargantuar)
+    # Source: re-pvz constants, instant kills deal 1800 damage
+    PlantType.CHERRY_BOMB: 1800,      # 3x3 AOE
+    PlantType.JALAPENO: 1800,         # full row
+    PlantType.DOOMSHROOM: 1800,       # large AOE (900 to Gargantuar)
+    PlantType.POTATO_MINE: 1800,      # single target
+    PlantType.SQUASH: 1800,           # jumps to target
+    PlantType.CHOMPER: 1800,          # instant kill, 42s digest
+    PlantType.TANGLEKELP: 1800,       # water only
+}
+
+
+# ============================================================================
+# Plant Attack Intervals (time between shots in centiseconds)
+# Source: re-plants-vs-zombies Plant.cpp LaunchProjectile() and Fire()
+# Note: These are the shooting animation times, actual fire rate depends on
+#       the number of projectiles per animation
+# Unit: cs (centiseconds), 1 second = 100 cs
+# ============================================================================
+
+PLANT_ATTACK_INTERVAL: dict[PlantType, int] = {
+    # Standard shooters - 141cs base interval
+    # Source: Plant.cpp line 745: mShootingCounter = 33 (animation frames)
+    # Actual interval calculated from game mechanics: ~141cs
+    PlantType.PEASHOOTER: 141,
+    PlantType.SNOW_PEA: 141,
+
+    # Repeater/Splitpea - faster animation
+    # Source: Plant.cpp line 749: mShootingCounter = 26
+    PlantType.REPEATER: 141,          # 2 peas per cycle
+    PlantType.SPLITPEA: 141,          # 1 front + 2 back per cycle
+
+    # Three-peater
+    PlantType.THREEPEATER: 141,       # 3 peas (one per row) per cycle
+
+    # Gatling Pea
+    # Source: Plant.cpp line 754: mShootingCounter = 100
+    PlantType.GATLINGPEA: 141,        # 4 peas per cycle
+
+    # Mushrooms
+    # Source: Plant.cpp line 779: SEED_PUFFSHROOM mShootingCounter = 29
+    PlantType.PUFFSHROOM: 141,
+    PlantType.SEASHROOM: 141,
+    # Source: Plant.cpp line 780: SEED_SCAREDYSHROOM mShootingCounter = 25
+    PlantType.SCAREDYSHROOM: 141,
+    # Source: Plant.cpp line 778: SEED_FUMESHROOM mShootingCounter = 50
+    PlantType.FUMESHROOM: 150,
+
+    # Gloom-shroom
+    # Source: Plant.cpp line 765: mShootingCounter = 200
+    PlantType.GLOOMSHROOM: 200,       # 4 fumes x 8 directions = 80 damage/cycle
+
+    # Catapult plants
+    # Source: Plant.cpp line 781: SEED_CABBAGEPULT mShootingCounter = 32
+    PlantType.CABBAGEPULT: 300,
+    # Source: Plant.cpp line 794: mShootingCounter = 30
+    PlantType.KERNELPULT: 300,
+    # Source: Plant.cpp line 783: SEED_MELONPULT/WINTERMELON mShootingCounter = 36
+    PlantType.MELONPULT: 300,
+    PlantType.WINTERMELON: 300,
+
+    # Other ranged
+    PlantType.STARFRUIT: 141,         # 5 stars per attack
+    # Source: Plant.cpp line 797: SEED_CACTUS mShootingCounter = 35
+    PlantType.CACTUS: 141,
+    # Source: Plant.cpp line 770: mShootingCounter = 50
+    PlantType.CATTAIL: 150,           # homing
+
+    # Cob Cannon reload time
+    # Source: constants.py COB_RECOVER_TIME = 3475
+    PlantType.COBCANNON: 3475,        # reload/cooldown time
+}
+
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+def get_plant_damage(plant_type: PlantType) -> int:
+    """Get damage per projectile for a plant type"""
+    return PLANT_DAMAGE.get(plant_type, 0)
+
+
+def get_plant_attack_interval(plant_type: PlantType) -> int:
+    """Get attack interval in centiseconds for a plant type"""
+    return PLANT_ATTACK_INTERVAL.get(plant_type, 0)
