@@ -77,10 +77,25 @@ class ResponseDecoder:
         if json_match:
             return json_match.group(1)
         
-        # Try to find raw JSON object
-        json_match = re.search(r"\{[\s\S]*\}", text)
-        if json_match:
-            return json_match.group(0)
+        # Try to find raw JSON object by matching balanced braces
+        # Find the first '{' and try to match to its closing '}'
+        start_idx = text.find('{')
+        if start_idx == -1:
+            return "{}"
+        
+        brace_count = 0
+        end_idx = start_idx
+        for i in range(start_idx, len(text)):
+            if text[i] == '{':
+                brace_count += 1
+            elif text[i] == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    end_idx = i
+                    break
+        
+        if brace_count == 0 and end_idx > start_idx:
+            return text[start_idx:end_idx + 1]
         
         return "{}"
     
@@ -132,7 +147,8 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= row <= 4 and 0 <= col <= 8):
+        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
+        if not (0 <= row <= 5 and 0 <= col <= 8):
             return None
         
         priority = data.get("priority", 50)
@@ -181,7 +197,8 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= row <= 4 and 0 <= col <= 8):
+        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
+        if not (0 <= row <= 5 and 0 <= col <= 8):
             return None
         
         priority = data.get("priority", 50)
@@ -208,7 +225,8 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= target_r <= 4):
+        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
+        if not (0 <= target_r <= 5):
             return None
         
         priority = data.get("priority", 50)

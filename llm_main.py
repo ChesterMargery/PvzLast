@@ -107,6 +107,9 @@ class PVZMemoryInterface:
         # Read seeds
         seeds = self._read_seeds(board)
         
+        # Read click_pao_countdown for cob cannon fire validation
+        click_pao_cd = self.reader.read_int(board + Offset.CLICK_PAO_COUNTDOWN)
+        
         return GameState(
             sun=sun,
             wave=wave,
@@ -115,6 +118,7 @@ class PVZMemoryInterface:
             scene=scene,
             refresh_countdown=refresh_cd,
             huge_wave_countdown=huge_wave_cd,
+            click_pao_countdown=click_pao_cd,
             zombies=zombies,
             plants=plants,
             seeds=seeds,

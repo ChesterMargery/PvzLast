@@ -13,6 +13,7 @@ from game.zombie import ZombieInfo
 from engine.action import Action, ActionType
 from data.plants import PlantType, PLANT_COST
 from data.zombies import ZombieType, GARGANTUAR_ZOMBIES
+from data.offsets import SceneType
 
 
 @dataclass
@@ -55,9 +56,10 @@ class EmergencyHandler:
             Emergency action if needed, None otherwise
         """
         emergencies = []
+        row_count = SceneType.get_row_count(state.scene)
         
         # Check each row for emergencies
-        for row in range(5):
+        for row in range(row_count):
             row_emergency = self._check_row_emergency(state, row)
             if row_emergency:
                 emergencies.append(row_emergency)
@@ -247,8 +249,9 @@ class EmergencyHandler:
     def get_all_emergencies(self, state: GameState) -> List[EmergencyAction]:
         """Get all emergency situations (for reporting)"""
         emergencies = []
+        row_count = SceneType.get_row_count(state.scene)
         
-        for row in range(5):
+        for row in range(row_count):
             row_emergency = self._check_row_emergency(state, row)
             if row_emergency:
                 emergencies.append(row_emergency)

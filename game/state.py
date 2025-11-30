@@ -199,9 +199,11 @@ class GameState:
     
     def get_most_threatened_row(self) -> int:
         """Get the row with highest threat"""
+        from data.offsets import SceneType
         max_threat = -1
         max_row = 0
-        for row in range(6):
+        row_count = SceneType.get_row_count(self.scene)
+        for row in range(row_count):
             threat = self.get_row_threat(row)
             if threat > max_threat:
                 max_threat = threat

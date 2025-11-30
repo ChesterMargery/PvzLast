@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from game.state import GameState
 from engine.action import Action, ActionType
 from data.plants import PlantType, PLANT_COST
+from data.offsets import SceneType
 
 
 @dataclass
@@ -89,12 +90,13 @@ class ActionValidator:
                 error=f"卡片冷却中: {int(seed.cooldown_percent)}%"
             )
         
-        # Check row bounds
-        if not (0 <= row <= 4):
+        # Check row bounds - scene-aware for pool levels
+        max_row = SceneType.get_row_count(state.scene) - 1
+        if not (0 <= row <= max_row):
             return ValidationResult(
                 valid=False,
                 action=action,
-                error=f"行号无效: {row}"
+                error=f"行号无效: {row} (场景最大行: {max_row})"
             )
         
         # Check col bounds
@@ -145,8 +147,9 @@ class ActionValidator:
         row = action.row
         col = action.col
         
-        # Check bounds
-        if not (0 <= row <= 4 and 0 <= col <= 8):
+        # Check bounds - scene-aware for pool levels
+        max_row = SceneType.get_row_count(state.scene) - 1
+        if not (0 <= row <= max_row and 0 <= col <= 8):
             return ValidationResult(
                 valid=False,
                 action=action,
@@ -183,8 +186,9 @@ class ActionValidator:
                 error="玉米炮点击冷却中"
             )
         
-        # Check target row
-        if not (0 <= action.row <= 4):
+        # Check target row - scene-aware for pool levels
+        max_row = SceneType.get_row_count(state.scene) - 1
+        if not (0 <= action.row <= max_row):
             return ValidationResult(
                 valid=False,
                 action=action,
