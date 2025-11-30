@@ -1,0 +1,209 @@
+"""
+Game State Class
+Represents the complete state of a PVZ game at a point in time
+"""
+
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+from game.zombie import ZombieInfo
+from game.plant import PlantInfo
+from game.grid import Grid
+
+
+@dataclass
+class SeedInfo:
+    """Information about a seed card in the player's hand"""
+    index: int
+    type: int
+    recharge_countdown: int  # Remaining cooldown (cs)
+    recharge_time: int  # Total cooldown time (cs)
+    usable: bool  # Can be planted now
+    imitator_type: int = -1  # Type if imitator (-1 if not)
+    
+    @property
+    def is_ready(self) -> bool:
+        """Check if the seed is ready to use"""
+        return self.usable and self.recharge_countdown <= 0
+    
+    @property
+    def cooldown_percent(self) -> float:
+        """Get cooldown progress as percentage (0-100)"""
+        if self.recharge_time <= 0:
+            return 100.0
+        return max(0, min(100, 100 * (1 - self.recharge_countdown / self.recharge_time)))
+
+
+@dataclass
+class GameState:
+    """
+    Complete game state snapshot
+    
+    Contains all information about the current game state including:
+    - Resources (sun)
+    - Wave progress
+    - All zombies on field
+    - All plants on field
+    - Seed cards in hand
+    - Grid representation of plants
+    """
+    
+    # Resources
+    sun: int = 0
+    
+    # Wave info
+    wave: int = 0
+    total_waves: int = 0
+    refresh_countdown: int = 0  # Time until next wave
+    huge_wave_countdown: int = 0  # Time until huge wave
+    
+    # Timing
+    game_clock: int = 0  # Game time in cs
+    
+    # Scene
+    scene: int = 0
+    
+    # Entities
+    zombies: List[ZombieInfo] = field(default_factory=list)
+    plants: List[PlantInfo] = field(default_factory=list)
+    seeds: List[SeedInfo] = field(default_factory=list)
+    
+    # Grid representation (quick plant lookup)
+    plant_grid: Optional[Grid] = None
+    
+    # ========================================================================
+    # Utility Properties
+    # ========================================================================
+    
+    @property
+    def alive_zombies(self) -> List[ZombieInfo]:
+        """Get all alive zombies"""
+        return [z for z in self.zombies if z.hp > 0]
+    
+    @property
+    def alive_plants(self) -> List[PlantInfo]:
+        """Get all alive plants"""
+        return [p for p in self.plants if p.hp > 0]
+    
+    @property
+    def zombie_count(self) -> int:
+        """Get number of alive zombies"""
+        return len(self.alive_zombies)
+    
+    @property
+    def plant_count(self) -> int:
+        """Get number of alive plants"""
+        return len(self.alive_plants)
+    
+    @property
+    def is_final_wave(self) -> bool:
+        """Check if on final wave"""
+        return self.wave >= self.total_waves
+    
+    @property
+    def is_huge_wave(self) -> bool:
+        """Check if current wave is a huge wave (every 10th)"""
+        return self.wave > 0 and self.wave % 10 == 0
+    
+    # ========================================================================
+    # Zombie Queries
+    # ========================================================================
+    
+    def get_zombies_in_row(self, row: int) -> List[ZombieInfo]:
+        """Get all zombies in a specific row"""
+        return [z for z in self.alive_zombies if z.row == row]
+    
+    def get_closest_zombie_in_row(self, row: int) -> Optional[ZombieInfo]:
+        """Get the closest zombie to the left in a row"""
+        row_zombies = self.get_zombies_in_row(row)
+        if not row_zombies:
+            return None
+        return min(row_zombies, key=lambda z: z.x)
+    
+    def get_zombies_by_type(self, zombie_type: int) -> List[ZombieInfo]:
+        """Get all zombies of a specific type"""
+        return [z for z in self.alive_zombies if z.type == zombie_type]
+    
+    def get_dangerous_zombies(self) -> List[ZombieInfo]:
+        """Get all zombies with high threat level"""
+        from data.zombies import is_dangerous_zombie
+        return [z for z in self.alive_zombies if is_dangerous_zombie(z.type)]
+    
+    # ========================================================================
+    # Plant Queries
+    # ========================================================================
+    
+    def get_plant_at(self, row: int, col: int) -> Optional[PlantInfo]:
+        """Get plant at a specific grid position"""
+        if self.plant_grid:
+            return self.plant_grid.get(row, col)
+        # Fallback to linear search
+        for plant in self.alive_plants:
+            if plant.row == row and plant.col == col:
+                return plant
+        return None
+    
+    def get_plants_in_row(self, row: int) -> List[PlantInfo]:
+        """Get all plants in a specific row"""
+        return [p for p in self.alive_plants if p.row == row]
+    
+    def get_plants_by_type(self, plant_type: int) -> List[PlantInfo]:
+        """Get all plants of a specific type"""
+        return [p for p in self.alive_plants if p.type == plant_type]
+    
+    def is_cell_empty(self, row: int, col: int) -> bool:
+        """Check if a grid cell is empty"""
+        return self.get_plant_at(row, col) is None
+    
+    # ========================================================================
+    # Seed Queries
+    # ========================================================================
+    
+    def get_seed_by_type(self, plant_type: int) -> Optional[SeedInfo]:
+        """Get seed card for a specific plant type"""
+        for seed in self.seeds:
+            if seed.type == plant_type:
+                return seed
+        return None
+    
+    def get_usable_seeds(self) -> List[SeedInfo]:
+        """Get all seeds that are currently usable"""
+        return [s for s in self.seeds if s.usable]
+    
+    def can_plant(self, plant_type: int) -> bool:
+        """Check if we can plant a specific type (have card and enough sun)"""
+        from data.plants import PLANT_COST
+        seed = self.get_seed_by_type(plant_type)
+        if not seed or not seed.usable:
+            return False
+        cost = PLANT_COST.get(plant_type, 100)
+        return self.sun >= cost
+    
+    # ========================================================================
+    # Row Analysis
+    # ========================================================================
+    
+    def get_row_threat(self, row: int) -> float:
+        """Calculate total threat level for a row"""
+        return sum(z.threat_level for z in self.get_zombies_in_row(row))
+    
+    def get_most_threatened_row(self) -> int:
+        """Get the row with highest threat"""
+        max_threat = -1
+        max_row = 0
+        for row in range(6):
+            threat = self.get_row_threat(row)
+            if threat > max_threat:
+                max_threat = threat
+                max_row = row
+        return max_row
+    
+    def get_row_defense_count(self, row: int) -> int:
+        """Count defensive plants in a row"""
+        from data.plants import DEFENSIVE_PLANTS
+        return sum(1 for p in self.get_plants_in_row(row) if p.type in DEFENSIVE_PLANTS)
+    
+    def get_row_attacker_count(self, row: int) -> int:
+        """Count attacking plants in a row"""
+        from data.plants import ATTACKING_PLANTS
+        return sum(1 for p in self.get_plants_in_row(row) if p.type in ATTACKING_PLANTS)
