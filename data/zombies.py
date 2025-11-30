@@ -1,6 +1,13 @@
 """
 Zombie Data from AsmVsZombies
 Contains all 33 zombie types with HP, movement speed, and special abilities
+
+重要说明：
+1. 僵尸血量 (ZOMBIE_HP_DATA) 是精确值，来自 AVZ 社区标准
+2. 僵尸速度 (ZOMBIE_BASE_SPEED) 是参考值，实际应从内存实时读取
+   - 内存偏移: Z_SPEED = 0x34
+   - 速度会受减速/冻结/攻击动画影响
+3. 所有数据来源: https://github.com/vector-wlc/AsmVsZombies
 """
 
 from enum import IntEnum
@@ -105,8 +112,10 @@ def get_zombie_accessory_hp(zombie_type: ZombieType) -> int:
     return accessory
 
 
-# Zombie base speed (pixels per centisecond)
-# Normal walking speed before any modifiers
+# 僵尸基础速度 (像素/厘秒)
+# 注意：这些是参考值，实际速度应从内存 Z_SPEED (0x34) 实时读取
+# 僵尸速度会受到减速、冻结、攻击动画等因素影响
+# 来源：AVZ 社区实测数据，非游戏内部硬编码常量
 ZOMBIE_BASE_SPEED = {
     ZombieType.ZOMBIE: 0.23,
     ZombieType.FLAG: 0.36,  # Faster than normal
@@ -137,7 +146,10 @@ ZOMBIE_BASE_SPEED = {
     ZombieType.GIGA_GARGANTUAR: 0.15,
 }
 
-# Average speed for Giga Gargantuar with attack time factored in
+# 红眼巨人平均速度 (像素/厘秒)
+# 来自 AVZ judge.h: float(484) / 3158 * 1.25
+# 作者注释："1.25 是我瞎调的参数"
+# 这是考虑了锤击动画停顿后的平均移动速度
 GIGA_AVG_SPEED = 484 / 3158 * 1.25  # ≈ 0.192 px/cs
 
 # Speed when slowed (50% of normal)

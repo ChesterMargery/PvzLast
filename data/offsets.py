@@ -59,6 +59,31 @@ class Offset:
     COIN_COUNT = 0x5570
     PAUSED = 0x164
     
+    # 场地物品数组 (墓碑、弹坑等)
+    PLACE_ITEM_ARRAY = 0x11C
+    PLACE_ITEM_COUNT_MAX = 0x120
+    
+    # 场地格子类型列表
+    GRID_TYPE_LIST = 0x168
+    
+    # 出怪种类列表 (bool数组，标记哪些僵尸会出现)
+    ZOMBIE_TYPE_LIST = 0x54D4
+    
+    # 全局时钟 (战斗和选卡界面都计时)
+    GLOBAL_CLOCK = 0x556C
+    
+    # 僵尸初始刷新倒计时
+    INITIAL_COUNTDOWN = 0x55A0
+    
+    # 出怪列表 (每波僵尸的具体安排)
+    ZOMBIE_LIST = 0x6B4
+    
+    # 点炮倒计时 (游戏30cs防误触机制)
+    CLICK_PAO_COUNTDOWN = 0x5754
+    
+    # 僵尸刷新血量
+    ZOMBIE_REFRESH_HP = 0x5594
+    
     # ========================================================================
     # Zombie Structure (size = 0x15C)
     # ========================================================================
@@ -98,6 +123,27 @@ class Offset:
     
     # Attack
     Z_EATING_COUNTDOWN = 0x88  # int, time until next bite
+    
+    # 僵尸是否在啃食
+    Z_IS_EAT = 0x51  # bool
+    
+    # 僵尸存在时间
+    Z_EXIST_TIME = 0x60  # int
+    
+    # 僵尸状态倒计时
+    Z_STATE_COUNTDOWN = 0x68  # int
+    
+    # 中弹判定坐标
+    Z_BULLET_X = 0x8C  # int, 中弹判定的横坐标
+    Z_BULLET_Y = 0x90  # int, 中弹判定的纵坐标
+    
+    # 受伤判定范围
+    Z_HURT_WIDTH = 0x94   # int, 受伤判定宽度
+    Z_HURT_HEIGHT = 0x98  # int, 受伤判定高度
+    
+    # 攻击判定坐标
+    Z_ATTACK_X = 0x9C  # int, 攻击判定的横坐标
+    Z_ATTACK_Y = 0xA0  # int, 攻击判定的纵坐标
     
     # Special zombie data
     Z_TARGET_ROW = 0x68  # int, for pole vaulter, digger, etc.
@@ -140,6 +186,25 @@ class Offset:
     
     # Pumpkin
     P_PUMPKIN_HP = 0x4C  # int, pumpkin shield HP if present
+    
+    # 受伤判定范围
+    P_HURT_WIDTH = 0x10   # int, 受伤判定宽度
+    P_HURT_HEIGHT = 0x14  # int, 受伤判定高度
+    
+    # 植物是否可见
+    P_VISIBLE = 0x18  # bool
+    
+    # 三叶草消失倒计时
+    P_BLOVER_COUNTDOWN = 0x4C  # int
+    
+    # 灰烬/冰菇/三叶草生效倒计时 (重要！)
+    P_EXPLODE_COUNTDOWN = 0x50  # int
+    
+    # 蘑菇倒计时
+    P_MUSHROOM_COUNTDOWN = 0x130  # int
+    
+    # 蹦极抓取状态 (0没被抓住, 1被抓住, 2抱走)
+    P_BUNGEE_STATE = 0x134  # int
     
     # Cob Cannon
     P_COB_COUNTDOWN = 0x54  # int, cob cannon reload time
@@ -200,6 +265,15 @@ class Offset:
     PR_TYPE = 0x5C  # int, projectile type
     PR_DEAD = 0x50  # bool, is dead
     
+    # 子弹存在时间
+    PR_EXIST_TIME = 0x60  # int
+    
+    # 炮弹落点横坐标 (需要 +87.5 才是实际落点)
+    PR_COB_TARGET_X = 0x80  # float
+    
+    # 炮弹落点行
+    PR_COB_TARGET_ROW = 0x84  # int
+    
     # ========================================================================
     # Lawnmower Structure
     # ========================================================================
@@ -210,6 +284,18 @@ class Offset:
     LM_X = 0x30  # float, x position
     LM_DEAD = 0x48  # bool, is dead/used
     LM_STATE = 0x34  # int, state
+    
+    # ========================================================================
+    # PlaceItem Structure (size = 0xEC) - 场地物品 (墓碑、弹坑等)
+    # ========================================================================
+    
+    PLACE_ITEM_SIZE = 0xEC
+    
+    PI_TYPE = 0x8      # int, 物品类型
+    PI_COL = 0x10      # int, 所在列
+    PI_ROW = 0x14      # int, 所在行
+    PI_VALUE = 0x18    # int, 数值 (墓碑冒出量/弹坑倒计时/脑子血量)
+    PI_DEAD = 0x20     # bool, 是否消失
     
     # ========================================================================
     # Function Addresses (for ASM injection)
