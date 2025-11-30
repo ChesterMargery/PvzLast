@@ -95,16 +95,16 @@ def load_config(config_path: Optional[str] = None) -> BotConfig:
     """
     Load configuration from file
     
+    Note: Currently returns default config. File loading to be implemented
+    in a future update. See GitHub issues for implementation timeline.
+    
     Args:
-        config_path: Path to config file (JSON or YAML)
+        config_path: Path to config file (JSON or YAML) - not yet used
         
     Returns:
-        BotConfig instance
+        BotConfig instance (currently always default)
     """
-    if config_path is None:
-        return BotConfig()
-    
-    # TODO: Implement config file loading
+    # TODO: Implement config file loading (JSON/YAML)
     # For now, return default config
     return BotConfig()
 
@@ -113,9 +113,11 @@ def save_config(config: BotConfig, config_path: str):
     """
     Save configuration to file
     
+    Note: Not yet implemented. Placeholder for future update.
+    
     Args:
         config: Configuration to save
         config_path: Path to save config file
     """
     # TODO: Implement config file saving
-    pass
+    raise NotImplementedError("Config file saving not yet implemented")

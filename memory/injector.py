@@ -261,35 +261,24 @@ class AsmInjector:
         """
         Fire a cob cannon at a specific position
         
+        Note: Not yet implemented. The cob cannon firing requires more complex
+        shellcode that varies by game version. See AVZ cob_manager for reference.
+        
+        TODO: Implement proper cob firing shellcode based on AVZ cob_manager.cpp
+        
         Args:
             cob_index: Index of the cob cannon plant
             target_x: Target x coordinate
             target_y: Target y coordinate
             
         Returns:
-            True if successful, False otherwise
+            True if successful, False otherwise (currently always False)
         """
-        board = self.reader.get_board()
-        if board == 0:
-            return False
-        
-        plant_array = self.reader.read_int(board + Offset.PLANT_ARRAY)
-        cob_addr = plant_array + cob_index * Offset.PLANT_SIZE
-        
-        # Pack float coordinates
-        x_bytes = struct.pack('<f', target_x)
-        y_bytes = struct.pack('<f', target_y)
-        
-        # This is a simplified version - actual implementation may vary
-        # based on game version
-        shellcode = bytes([
-            # Set up for cob fire call
-            # ... (implementation depends on exact game function signature)
-            0xC3  # ret
-        ])
-        
-        # TODO: Implement proper cob firing shellcode
-        # For now, return False to indicate not implemented
+        # This is a placeholder - actual implementation requires:
+        # 1. Finding the cob cannon plant
+        # 2. Setting up mouse cursor position
+        # 3. Calling the game's cob fire function
+        # Reference: AVZ src/avz_cob_manager.cpp
         return False
     
     def collect_sun(self, item_addr: int) -> bool:
