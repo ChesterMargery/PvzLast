@@ -7,3 +7,4 @@ from data.constants import *
 from data.plants import *
 from data.zombies import *
 from data.offsets import *
+from data.projectiles import *
