@@ -55,24 +55,25 @@ class ZombieData:
 
 # Zombie HP (body + accessory)
 # Format: (body_hp, accessory_hp)
+# Body HP values from AVZ community standard (includes dying state HP)
 ZOMBIE_HP_DATA = {
-    ZombieType.ZOMBIE: (200, 0),
-    ZombieType.FLAG: (200, 0),
-    ZombieType.CONEHEAD: (200, 370),
+    ZombieType.ZOMBIE: (270, 0),
+    ZombieType.FLAG: (270, 0),
+    ZombieType.CONEHEAD: (270, 370),
     ZombieType.POLEVAULTER: (500, 0),
-    ZombieType.BUCKETHEAD: (200, 1100),
-    ZombieType.NEWSPAPER: (200, 150),
-    ZombieType.SCREENDOOR: (200, 1100),
-    ZombieType.FOOTBALL: (1600, 0),  # Has internal armor
+    ZombieType.BUCKETHEAD: (270, 1100),
+    ZombieType.NEWSPAPER: (270, 150),
+    ZombieType.SCREENDOOR: (270, 1100),
+    ZombieType.FOOTBALL: (1400, 0),  # Has internal armor
     ZombieType.DANCING: (500, 0),
-    ZombieType.BACKUP: (200, 0),
-    ZombieType.DUCKYTUBE: (200, 0),  # HP depends on base zombie
-    ZombieType.SNORKEL: (200, 0),
+    ZombieType.BACKUP: (270, 0),
+    ZombieType.DUCKYTUBE: (270, 0),  # HP depends on base zombie
+    ZombieType.SNORKEL: (300, 0),
     ZombieType.ZOMBONI: (1350, 0),  # Ice machine HP
-    ZombieType.BOBSLED: (200, 0),
+    ZombieType.BOBSLED: (270, 0),
     ZombieType.DOLPHIN: (500, 0),
     ZombieType.JACKINBOX: (500, 0),
-    ZombieType.BALLOON: (200, 200),  # Balloon + zombie
+    ZombieType.BALLOON: (270, 0),  # Balloon is part of body, not accessory
     ZombieType.DIGGER: (300, 100),  # Mining helmet
     ZombieType.POGO: (500, 0),  # Pogo stick
     ZombieType.YETI: (1350, 0),

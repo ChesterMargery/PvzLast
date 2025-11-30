@@ -62,7 +62,8 @@ GLOOM_DAMAGE_PER_CS = 80 / 200  # = 0.4 hp/cs
 # ============================================================================
 
 GRID_WIDTH = 80  # 每格宽度 (像素)
-GRID_HEIGHT = 100  # 每格高度 (像素)
+GRID_HEIGHT = 85  # 每格高度 (像素) - 非屋顶场景
+GRID_HEIGHT_ROOF = 85  # 屋顶场景基础高度 (same as non-roof, but roof has slope)
 
 GRID_COLS = 9  # 列数
 GRID_ROWS = 6  # 最大行数 (泳池有6行，草地有5行)
