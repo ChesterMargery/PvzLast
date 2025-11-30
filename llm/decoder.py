@@ -132,7 +132,7 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= row <= 5 and 0 <= col <= 8):
+        if not (0 <= row <= 4 and 0 <= col <= 8):
             return None
         
         priority = data.get("priority", 50)
@@ -181,7 +181,7 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= row <= 5 and 0 <= col <= 8):
+        if not (0 <= row <= 4 and 0 <= col <= 8):
             return None
         
         priority = data.get("priority", 50)
@@ -208,7 +208,7 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        if not (0 <= target_r <= 5):
+        if not (0 <= target_r <= 4):
             return None
         
         priority = data.get("priority", 50)
