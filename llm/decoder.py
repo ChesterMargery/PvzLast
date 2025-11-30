@@ -12,6 +12,13 @@ from dataclasses import dataclass
 from engine.action import Action, ActionType
 from data.plants import PlantType, PLANT_COST
 
+# Maximum row index (0-indexed) for pool scenes (6 rows = max index 5)
+# Non-pool scenes have 5 rows (max index 4), but we use the maximum possible
+# value here since we don't have scene info at decode time. The validator
+# will enforce the actual scene-specific limit.
+MAX_ROW_INDEX = 5  # Pool scenes have rows 0-5
+MAX_COL_INDEX = 8  # All scenes have columns 0-8
+
 
 @dataclass
 class LLMResponse:
@@ -85,14 +92,33 @@ class ResponseDecoder:
         
         brace_count = 0
         end_idx = start_idx
+        in_string = False
+        escape_next = False
+        
         for i in range(start_idx, len(text)):
-            if text[i] == '{':
-                brace_count += 1
-            elif text[i] == '}':
-                brace_count -= 1
-                if brace_count == 0:
-                    end_idx = i
-                    break
+            char = text[i]
+            
+            if escape_next:
+                escape_next = False
+                continue
+            
+            if char == '\\':
+                escape_next = True
+                continue
+            
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+            
+            # Only count braces outside of strings
+            if not in_string:
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_idx = i
+                        break
         
         if brace_count == 0 and end_idx > start_idx:
             return text[start_idx:end_idx + 1]
@@ -147,8 +173,9 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
-        if not (0 <= row <= 5 and 0 <= col <= 8):
+        # Row/col bounds check using constants. The validator will enforce
+        # exact scene-specific limits since we don't have scene info here.
+        if not (0 <= row <= MAX_ROW_INDEX and 0 <= col <= MAX_COL_INDEX):
             return None
         
         priority = data.get("priority", 50)
@@ -197,8 +224,8 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
-        if not (0 <= row <= 5 and 0 <= col <= 8):
+        # Row/col bounds check using constants
+        if not (0 <= row <= MAX_ROW_INDEX and 0 <= col <= MAX_COL_INDEX):
             return None
         
         priority = data.get("priority", 50)
@@ -225,8 +252,8 @@ class ResponseDecoder:
         except (ValueError, TypeError):
             return None
         
-        # Row check: allow 0-5 for pool scenes, validator will enforce exact limits
-        if not (0 <= target_r <= 5):
+        # Row bounds check using constant
+        if not (0 <= target_r <= MAX_ROW_INDEX):
             return None
         
         priority = data.get("priority", 50)

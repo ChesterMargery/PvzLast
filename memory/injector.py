@@ -197,8 +197,10 @@ class AsmInjector:
             return False
             
         plant_max = self.reader.read_int(board + Offset.PLANT_COUNT_MAX)
-        if plant_max <= 0 or plant_max > 200:
+        # Validate plant_max is within reasonable bounds (cap at 200 for safety)
+        if plant_max <= 0:
             return False
+        plant_max = min(plant_max, 200)
         
         plant_addr = None
         for i in range(plant_max):
