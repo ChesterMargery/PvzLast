@@ -1,18 +1,25 @@
 """
-Zombie Data from AsmVsZombies
+Zombie Data from AsmVsZombies and re-plants-vs-zombies
 Contains all 33 zombie types with HP, movement speed, and special abilities
 
 重要说明：
-1. 僵尸血量 (ZOMBIE_HP_DATA) 是精确值，来自 AVZ 社区标准
+1. 僵尸血量 (ZOMBIE_HP_DATA / ZOMBIE_HEALTH) 是精确值
+   - 来源: re-plants-vs-zombies Zombie.cpp 构造函数
+   - body: 本体血量 (mBodyHealth)
+   - armor: 护甲血量 (mHelmHealth) - 路障/铁桶/橄榄球头盔等
+   - shield: 盾牌血量 (mShieldHealth) - 铁门/梯子/报纸等
 2. 僵尸速度 (ZOMBIE_BASE_SPEED) 是参考值，实际应从内存实时读取
    - 内存偏移: Z_SPEED = 0x34
    - 速度会受减速/冻结/攻击动画影响
-3. 所有数据来源: https://github.com/vector-wlc/AsmVsZombies
+   - 来源: re-plants-vs-zombies Zombie.cpp PickRandomSpeed()
+3. 数据来源:
+   - https://github.com/Patoke/re-plants-vs-zombies
+   - https://github.com/vector-wlc/AsmVsZombies
 """
 
 from enum import IntEnum
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, NamedTuple
 
 
 class ZombieType(IntEnum):
@@ -60,7 +67,108 @@ class ZombieData:
     has_special: bool  # 是否有特殊能力
 
 
-# Zombie HP (body + accessory)
+class ZombieHealth(NamedTuple):
+    """
+    Zombie health values (body/armor/shield separation)
+    Source: re-plants-vs-zombies Zombie.cpp constructor
+    
+    Attributes:
+        body: Body health (mBodyHealth) - damage goes here after armor/shield depleted
+        armor: Armor health (mHelmHealth) - 路障/铁桶/橄榄球头盔/矿工帽等
+        shield: Shield health (mShieldHealth) - 铁门/梯子/报纸等
+    """
+    body: int
+    armor: int = 0
+    shield: int = 0
+
+
+# ============================================================================
+# Zombie Health Data (with body/armor/shield separation)
+# Source: re-plants-vs-zombies Zombie.cpp ZombieInitialize()
+# Note: armor = mHelmHealth, shield = mShieldHealth
+# ============================================================================
+
+ZOMBIE_HEALTH: dict[ZombieType, ZombieHealth] = {
+    # Source: Zombie.cpp line 168: mBodyHealth = 270
+    ZombieType.ZOMBIE: ZombieHealth(body=270, armor=0, shield=0),
+    ZombieType.FLAG: ZombieHealth(body=270, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 193: mHelmHealth = 370
+    ZombieType.CONEHEAD: ZombieHealth(body=270, armor=370, shield=0),
+    
+    # Source: Zombie.cpp line 201: mHelmHealth = 1100
+    ZombieType.BUCKETHEAD: ZombieHealth(body=270, armor=1100, shield=0),
+    
+    # Source: Zombie.cpp line 543: mShieldHealth = 150
+    ZombieType.NEWSPAPER: ZombieHealth(body=270, armor=0, shield=150),
+    
+    # Source: Zombie.cpp line 206: mShieldHealth = 1100
+    ZombieType.SCREENDOOR: ZombieHealth(body=270, armor=0, shield=1100),
+    
+    # Source: Zombie.cpp line 275: mHelmHealth = 1400
+    ZombieType.FOOTBALL: ZombieHealth(body=270, armor=1400, shield=0),
+    
+    # Source: Zombie.cpp line 308: mBodyHealth = 500
+    ZombieType.POLEVAULTER: ZombieHealth(body=500, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 592: mBodyHealth = 500
+    ZombieType.DANCING: ZombieHealth(body=500, armor=0, shield=0),
+    ZombieType.BACKUP: ZombieHealth(body=270, armor=0, shield=0),
+    
+    ZombieType.DUCKYTUBE: ZombieHealth(body=270, armor=0, shield=0),
+    
+    # Snorkel has no explicit HP set, defaults to 270
+    ZombieType.SNORKEL: ZombieHealth(body=270, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 389: mBodyHealth = 1350
+    ZombieType.ZOMBONI: ZombieHealth(body=1350, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 488: mHelmHealth = 300
+    ZombieType.BOBSLED: ZombieHealth(body=270, armor=300, shield=0),
+    
+    # Source: Zombie.cpp line 330: mBodyHealth = 500
+    ZombieType.DOLPHIN: ZombieHealth(body=500, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 428: mBodyHealth = 500
+    ZombieType.JACKINBOX: ZombieHealth(body=500, armor=0, shield=0),
+    
+    # Balloon HP is in body, mFlyingHealth=20 is separate
+    ZombieType.BALLOON: ZombieHealth(body=270, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 283: mHelmHealth = 100
+    ZombieType.DIGGER: ZombieHealth(body=270, armor=100, shield=0),
+    
+    # Source: Zombie.cpp line 533: mBodyHealth = 500
+    ZombieType.POGO: ZombieHealth(body=500, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 212: mBodyHealth = 1350
+    ZombieType.YETI: ZombieHealth(body=1350, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 233: mBodyHealth = 450
+    ZombieType.BUNGEE: ZombieHealth(body=450, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 219-220: mBodyHealth = 500, mShieldHealth = 500
+    ZombieType.LADDER: ZombieHealth(body=500, armor=0, shield=500),
+    
+    # Source: Zombie.cpp line 401: mBodyHealth = 850
+    ZombieType.CATAPULT: ZombieHealth(body=850, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 348: mBodyHealth = 3000
+    ZombieType.GARGANTUAR: ZombieHealth(body=3000, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 614: mBodyHealth = 70 (IZombie level)
+    # Normal mode IMP has body HP around 270-300
+    ZombieType.IMP: ZombieHealth(body=70, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 624: mBodyHealth = 40000 (adventure) / 60000 (other)
+    ZombieType.ZOMBOSS: ZombieHealth(body=40000, armor=0, shield=0),
+    
+    # Source: Zombie.cpp line 382: mBodyHealth = 6000
+    ZombieType.GIGA_GARGANTUAR: ZombieHealth(body=6000, armor=0, shield=0),
+}
+
+
+# Zombie HP (body + accessory) - Legacy format for backward compatibility
 # Format: (body_hp, accessory_hp)
 # Body HP values from AVZ community standard (includes dying state HP)
 ZOMBIE_HP_DATA = {
@@ -71,24 +179,24 @@ ZOMBIE_HP_DATA = {
     ZombieType.BUCKETHEAD: (270, 1100),
     ZombieType.NEWSPAPER: (270, 150),
     ZombieType.SCREENDOOR: (270, 1100),
-    ZombieType.FOOTBALL: (1400, 0),  # Has internal armor
+    ZombieType.FOOTBALL: (270, 1400),  # body + helmet (Source: Zombie.cpp)
     ZombieType.DANCING: (500, 0),
     ZombieType.BACKUP: (270, 0),
     ZombieType.DUCKYTUBE: (270, 0),  # HP depends on base zombie
-    ZombieType.SNORKEL: (300, 0),
+    ZombieType.SNORKEL: (270, 0),
     ZombieType.ZOMBONI: (1350, 0),  # Ice machine HP
-    ZombieType.BOBSLED: (270, 0),
+    ZombieType.BOBSLED: (270, 300),  # body + bobsled helmet
     ZombieType.DOLPHIN: (500, 0),
     ZombieType.JACKINBOX: (500, 0),
     ZombieType.BALLOON: (270, 0),  # Balloon is part of body, not accessory
-    ZombieType.DIGGER: (300, 100),  # Mining helmet
-    ZombieType.POGO: (500, 0),  # Pogo stick
+    ZombieType.DIGGER: (270, 100),  # Mining helmet
+    ZombieType.POGO: (500, 0),  # Pogo stick is not armor
     ZombieType.YETI: (1350, 0),
     ZombieType.BUNGEE: (450, 0),
-    ZombieType.LADDER: (500, 500),  # Body + ladder
+    ZombieType.LADDER: (500, 500),  # Body + ladder (shield)
     ZombieType.CATAPULT: (850, 0),  # Basketball machine
     ZombieType.GARGANTUAR: (3000, 0),
-    ZombieType.IMP: (300, 0),
+    ZombieType.IMP: (70, 0),
     ZombieType.ZOMBOSS: (40000, 0),  # Dr. Zomboss
     ZombieType.GIGA_GARGANTUAR: (6000, 0),
 }
@@ -112,37 +220,59 @@ def get_zombie_accessory_hp(zombie_type: ZombieType) -> int:
     return accessory
 
 
-# 僵尸基础速度 (像素/厘秒)
-# 注意：这些是参考值，实际速度应从内存 Z_SPEED (0x34) 实时读取
-# 僵尸速度会受到减速、冻结、攻击动画等因素影响
-# 来源：AVZ 社区实测数据，非游戏内部硬编码常量
-ZOMBIE_BASE_SPEED = {
+# ============================================================================
+# Zombie Base Speed (pixels per centisecond)
+# Source: re-plants-vs-zombies Zombie.cpp PickRandomSpeed() (line 1110-1165)
+# Note: Actual speed should be read from memory Z_SPEED (0x34) at runtime
+#       Speed is affected by slow/freeze effects and attack animations
+# ============================================================================
+
+ZOMBIE_BASE_SPEED: dict[ZombieType, float] = {
+    # Source: Zombie.cpp line 1158: mVelX = RandRangeFloat(0.23f, 0.32f)
     ZombieType.ZOMBIE: 0.23,
-    ZombieType.FLAG: 0.36,  # Faster than normal
+    # Source: Zombie.cpp line 1140: mVelX = 0.45f (flag/dancer/pogo)
+    ZombieType.FLAG: 0.45,
     ZombieType.CONEHEAD: 0.23,
-    ZombieType.POLEVAULTER: 0.48,  # Before jump: very fast
+    # Source: Zombie.cpp line 1145: PHASE_POLEVAULTER_PRE_VAULT mVelX = 0.66-0.68
+    ZombieType.POLEVAULTER: 0.67,     # Before vault; walks normal after
     ZombieType.BUCKETHEAD: 0.23,
-    ZombieType.NEWSPAPER: 0.23,  # Becomes 0.68 when angry
+    # Source: Zombie.cpp line 1154: PHASE_NEWSPAPER_MAD mVelX = 0.89-0.91
+    ZombieType.NEWSPAPER: 0.23,       # Normal; 0.90 when angry
     ZombieType.SCREENDOOR: 0.23,
-    ZombieType.FOOTBALL: 0.68,  # Very fast
-    ZombieType.DANCING: 0.13,  # Slow
-    ZombieType.BACKUP: 0.33,
-    ZombieType.DUCKYTUBE: 0.23,  # Water speed
-    ZombieType.SNORKEL: 0.23,
-    ZombieType.ZOMBONI: 0.44,  # Ice machine
-    ZombieType.BOBSLED: 0.68,  # On ice track
-    ZombieType.DOLPHIN: 0.93,  # Very fast in water
-    ZombieType.JACKINBOX: 0.82,
-    ZombieType.BALLOON: 0.3,  # Flying
-    ZombieType.DIGGER: 0.12,  # Underground
-    ZombieType.POGO: 0.5,  # Bouncing
-    ZombieType.YETI: 0.23,
-    ZombieType.BUNGEE: 0.0,  # Descends from sky
-    ZombieType.LADDER: 0.46,
+    # Source: Zombie.cpp line 1145: ZOMBIE_FOOTBALL mVelX = 0.66-0.68
+    ZombieType.FOOTBALL: 0.67,
+    # Source: Zombie.cpp line 1140: ZOMBIE_DANCER mVelX = 0.45f
+    ZombieType.DANCING: 0.45,
+    ZombieType.BACKUP: 0.23,
+    ZombieType.DUCKYTUBE: 0.23,
+    # Source: Zombie.cpp line 1145: ZOMBIE_SNORKEL mVelX = 0.66-0.68
+    ZombieType.SNORKEL: 0.67,
+    # Fixed speed based on ice track
+    ZombieType.ZOMBONI: 0.44,
+    # Source: Zombie.cpp line 492: mVelX = 0.6f (bobsled sliding)
+    ZombieType.BOBSLED: 0.60,
+    # Source: Zombie.cpp line 1154: PHASE_DOLPHIN_WALKING mVelX = 0.89-0.91
+    ZombieType.DOLPHIN: 0.90,
+    # Source: Zombie.cpp line 1145: ZOMBIE_JACK_IN_THE_BOX mVelX = 0.66-0.68
+    ZombieType.JACKINBOX: 0.67,
+    # Balloon floats
+    ZombieType.BALLOON: 0.30,
+    # Source: Zombie.cpp line 1122: mVelX = 0.12f (tunneling)
+    ZombieType.DIGGER: 0.12,          # Underground; 0.23 after emerging
+    # Source: Zombie.cpp line 1140: ZOMBIE_POGO mVelX = 0.45f
+    ZombieType.POGO: 0.45,
+    # Source: Zombie.cpp line 1135: ZOMBIE_YETI mVelX = 0.4f; 0.8f running
+    ZombieType.YETI: 0.40,
+    ZombieType.BUNGEE: 0.0,           # Descends from sky
+    # Source: Zombie.cpp line 1149: PHASE_LADDER_CARRYING mVelX = 0.79-0.81
+    ZombieType.LADDER: 0.80,
+    # Fixed catapult speed
     ZombieType.CATAPULT: 0.22,
-    ZombieType.GARGANTUAR: 0.15,  # Slow
-    ZombieType.IMP: 0.6,  # Fast
-    ZombieType.ZOMBOSS: 0.0,  # Stationary
+    # Gargantuars are slow
+    ZombieType.GARGANTUAR: 0.15,
+    # Source: Zombie.cpp line 1127: mVelX = 0.9f (IZombie IMP)
+    ZombieType.IMP: 0.60,             # Thrown IMPs move faster
+    ZombieType.ZOMBOSS: 0.0,          # Stationary
     ZombieType.GIGA_GARGANTUAR: 0.15,
 }
 
@@ -301,3 +431,66 @@ def get_threat_multiplier(zombie_type: ZombieType) -> float:
         return 1.7
     else:
         return 1.0
+
+
+# ============================================================================
+# Endless Mode Health Multiplier
+# Source: Based on game mechanics for Survival: Endless mode
+# Zombie health increases with each flag/wave
+# ============================================================================
+
+def get_endless_health_multiplier(flag: int) -> float:
+    """
+    Get zombie health multiplier for Endless mode based on flag count.
+    
+    In Survival: Endless mode, zombie health scales with wave progression:
+    - Flags 1-2: 1.0x (normal health)
+    - After flag 2: increases by 0.1x per flag
+    - Maximum multiplier: 6.0x (at flag 52+)
+    
+    Args:
+        flag: Current flag number (1-indexed, starts at 1)
+        
+    Returns:
+        Health multiplier to apply to zombie HP values
+        
+    Example:
+        >>> get_endless_health_multiplier(1)
+        1.0
+        >>> get_endless_health_multiplier(10)
+        1.8
+        >>> get_endless_health_multiplier(52)
+        6.0
+    """
+    if flag <= 2:
+        return 1.0
+    # Linear increase starting from flag 3
+    multiplier = 1.0 + (flag - 2) * 0.1
+    return min(multiplier, 6.0)
+
+
+def get_zombie_health_for_endless(
+    zombie_type: ZombieType,
+    flag: int
+) -> ZombieHealth:
+    """
+    Get zombie health values scaled for Endless mode.
+    
+    Args:
+        zombie_type: Type of zombie
+        flag: Current flag number in Endless mode
+        
+    Returns:
+        ZombieHealth with scaled body/armor/shield values
+    """
+    base_health = ZOMBIE_HEALTH.get(
+        zombie_type,
+        ZombieHealth(body=270, armor=0, shield=0)
+    )
+    multiplier = get_endless_health_multiplier(flag)
+    
+    return ZombieHealth(
+        body=int(base_health.body * multiplier),
+        armor=int(base_health.armor * multiplier),
+        shield=int(base_health.shield * multiplier)
+    )
