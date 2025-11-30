@@ -346,6 +346,7 @@ class GameSimulator:
         else:
             target_rows = [proj.row]
         
+        hit_any = False
         for zombie in self.zombies:
             if not zombie.is_alive:
                 continue
@@ -358,16 +359,21 @@ class GameSimulator:
             zombie_right = zombie.x + 20
             
             if is_splash_projectile(proj.type):
-                # Splash projectiles use radius
+                # Splash projectiles use radius and hit all zombies in range
                 splash_radius = PROJECTILE_SPLASH_RADIUS.get(proj.type, 80)
                 if abs(proj.x - zombie.x) <= splash_radius:
                     self._apply_projectile_damage(proj, zombie)
+                    hit_any = True
             else:
                 # Direct hit check
                 if zombie_left <= proj.x <= zombie_right:
                     self._apply_projectile_damage(proj, zombie)
                     proj.is_alive = False
                     return
+        
+        # Mark splash projectile as dead after hitting at least one zombie
+        if is_splash_projectile(proj.type) and hit_any:
+            proj.is_alive = False
     
     def _apply_projectile_damage(self, proj: Projectile, zombie: Zombie) -> None:
         """Apply projectile damage to zombie"""
@@ -480,11 +486,17 @@ class GameSimulator:
                     plant.attack_countdown = PEASHOOTER_ATTACK_INTERVAL
     
     def _should_plant_fire(self, plant: Plant) -> bool:
-        """Check if plant should fire (zombies in row ahead)"""
+        """Check if plant should fire (zombies in row(s) ahead)"""
+        # Determine which rows this plant can target
+        if plant.type == PlantType.THREEPEATER:
+            target_rows = [plant.row - 1, plant.row, plant.row + 1]
+        else:
+            target_rows = [plant.row]
+        
         for zombie in self.zombies:
             if not zombie.is_alive:
                 continue
-            if zombie.row != plant.row:
+            if zombie.row not in target_rows:
                 continue
             # Check if zombie is ahead of plant
             if zombie.x > plant.x:
@@ -492,18 +504,55 @@ class GameSimulator:
         return False
     
     def _plant_fire(self, plant: Plant) -> None:
-        """Fire a projectile from plant"""
+        """Fire projectile(s) from plant based on plant type"""
         proj_type = self._get_projectile_type_for_plant(plant.type)
         if proj_type is None:
             return
         
+        # Determine number of projectiles and rows based on plant type
+        if plant.type == PlantType.REPEATER:
+            # Repeater fires 2 peas in the same row
+            self._create_projectile(proj_type, plant.row, plant.x + 40, plant.id)
+            self._create_projectile(proj_type, plant.row, plant.x + 45, plant.id)  # Slight offset
+        elif plant.type == PlantType.THREEPEATER:
+            # Threepeater fires 3 peas in adjacent rows
+            for row_offset in [-1, 0, 1]:
+                target_row = plant.row + row_offset
+                if 0 <= target_row < self._row_count:
+                    self._create_projectile(proj_type, target_row, plant.x + 40, plant.id)
+        elif plant.type == PlantType.SPLITPEA:
+            # Splitpea fires forward and backward
+            self._create_projectile(proj_type, plant.row, plant.x + 40, plant.id)
+            # Create backward projectile (negative speed)
+            back_proj = Projectile.create(
+                proj_type=proj_type,
+                row=plant.row,
+                x=plant.x - 10,
+                y=0,
+                proj_id=self._next_projectile_id,
+                source_plant_id=plant.id,
+            )
+            self._next_projectile_id += 1
+            self.projectiles.append(back_proj)
+            # Note: backward projectile moves left - handled in update
+        elif plant.type == PlantType.GATLINGPEA:
+            # Gatling pea fires 4 peas
+            for i in range(4):
+                self._create_projectile(proj_type, plant.row, plant.x + 40 + i * 3, plant.id)
+        else:
+            # Single projectile for other plants
+            self._create_projectile(proj_type, plant.row, plant.x + 40, plant.id)
+    
+    def _create_projectile(self, proj_type: ProjectileType, row: int, x: float, 
+                          source_plant_id: int) -> None:
+        """Create a single projectile"""
         proj = Projectile.create(
             proj_type=proj_type,
-            row=plant.row,
-            x=plant.x + 40,  # Fire from plant front
+            row=row,
+            x=x,
             y=0,
             proj_id=self._next_projectile_id,
-            source_plant_id=plant.id,
+            source_plant_id=source_plant_id,
         )
         self._next_projectile_id += 1
         self.projectiles.append(proj)

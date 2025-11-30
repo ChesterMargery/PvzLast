@@ -90,16 +90,23 @@ class WaveSpawner:
         self._current_zombie_index: int = 0
         self._wave_spawn_countdown: int = 0
     
-    def update(self, frame: int) -> List[Tuple[ZombieType, int]]:
+    def update(self, frame: int = 0) -> List[Tuple[ZombieType, int]]:
         """
         Update spawner and return zombies to spawn this frame
         
         Args:
-            frame: Current frame number
+            frame: Current frame number (optional, for debugging/logging)
             
         Returns:
             List of (zombie_type, row) tuples to spawn
+        
+        Note:
+            The frame parameter is currently unused but kept for potential
+            future use (e.g., logging, time-based spawn adjustments).
         """
+        # frame parameter kept for potential debugging/logging use
+        _ = frame  # Suppress unused warning
+        
         spawns: List[Tuple[ZombieType, int]] = []
         
         if self.state == SpawnState.FINISHED:
