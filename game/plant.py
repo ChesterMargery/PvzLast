@@ -41,6 +41,15 @@ class PlantInfo:
     cob_countdown: int = 0  # Cob cannon reload time
     cob_ready: bool = False  # Cob cannon ready to fire
     
+    # Additional fields from offsets
+    visible: bool = True              # P_VISIBLE (0x18)
+    explode_countdown: int = 0        # P_EXPLODE_COUNTDOWN (0x50)
+    blover_countdown: int = 0         # P_BLOVER_COUNTDOWN (0x4C)
+    mushroom_countdown: int = 0       # P_MUSHROOM_COUNTDOWN (0x130)
+    bungee_state: int = 0             # P_BUNGEE_STATE (0x134)
+    hurt_width: int = 0               # P_HURT_WIDTH (0x10)
+    hurt_height: int = 0              # P_HURT_HEIGHT (0x14)
+    
     # ========================================================================
     # Position Properties
     # ========================================================================
@@ -122,6 +131,16 @@ class PlantInfo:
     def is_cob_cannon(self) -> bool:
         """Check if plant is a cob cannon"""
         return self.type == PlantType.COBCANNON
+    
+    @property
+    def is_grabbed_by_bungee(self) -> bool:
+        """Check if plant is being grabbed by a bungee zombie"""
+        return self.bungee_state > 0
+    
+    @property
+    def time_to_explode(self) -> int:
+        """Get the countdown until plant explodes (for instant plants)"""
+        return self.explode_countdown
     
     # ========================================================================
     # Special Plant Checks
