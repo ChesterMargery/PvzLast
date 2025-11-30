@@ -80,7 +80,7 @@ class Offset:
     Z_HP = 0xC8  # int, current body HP
     Z_HP_MAX = 0xCC  # int, max body HP
     Z_ACCESSORY_HP_1 = 0xD0  # int, first accessory HP (cone/bucket/etc.)
-    Z_ACCESSORY_HP_2 = 0xD4  # int, second accessory HP (shield door)
+    Z_ACCESSORY_HP_2 = 0xDC  # int, second accessory HP (shield door)
     
     # Status effects
     Z_SLOW_COUNTDOWN = 0xAC  # int, slow effect remaining time
