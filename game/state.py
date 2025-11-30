@@ -9,6 +9,9 @@ from typing import List, Optional
 from game.zombie import ZombieInfo
 from game.plant import PlantInfo
 from game.grid import Grid
+from game.projectile import ProjectileInfo
+from game.lawnmower import LawnmowerInfo
+from game.place_item import PlaceItemInfo
 
 
 @dataclass
@@ -59,6 +62,10 @@ class GameState:
     
     # Timing
     game_clock: int = 0  # Game time in cs
+    global_clock: int = 0  # Global clock (battle and selection)
+    initial_countdown: int = 0  # Initial zombie refresh countdown
+    click_pao_countdown: int = 0  # Cob cannon click cooldown (30cs anti-misclick)
+    zombie_refresh_hp: int = 0  # Zombie refresh HP threshold
     
     # Scene
     scene: int = 0
@@ -67,6 +74,9 @@ class GameState:
     zombies: List[ZombieInfo] = field(default_factory=list)
     plants: List[PlantInfo] = field(default_factory=list)
     seeds: List[SeedInfo] = field(default_factory=list)
+    projectiles: List[ProjectileInfo] = field(default_factory=list)
+    lawnmowers: List[LawnmowerInfo] = field(default_factory=list)
+    place_items: List[PlaceItemInfo] = field(default_factory=list)
     
     # Grid representation (quick plant lookup)
     plant_grid: Optional[Grid] = None
@@ -207,3 +217,45 @@ class GameState:
         """Count attacking plants in a row"""
         from data.plants import ATTACKING_PLANTS
         return sum(1 for p in self.get_plants_in_row(row) if p.type in ATTACKING_PLANTS)
+    
+    # ========================================================================
+    # Projectile Queries
+    # ========================================================================
+    
+    def get_flying_cobs(self) -> List[ProjectileInfo]:
+        """Get all cob cannon projectiles currently in flight"""
+        from game.projectile import ProjectileType
+        return [p for p in self.projectiles 
+                if not p.is_dead and p.type == ProjectileType.COB]
+    
+    # ========================================================================
+    # Cob Cannon Queries
+    # ========================================================================
+    
+    def get_ready_cobs(self) -> List[PlantInfo]:
+        """Get all cob cannons that are ready to fire"""
+        return [p for p in self.alive_plants if p.is_cob_cannon and p.cob_ready]
+    
+    def can_fire_cob(self) -> bool:
+        """Check if any cob cannon can be fired (ready and no click cooldown)"""
+        return self.click_pao_countdown <= 0 and len(self.get_ready_cobs()) > 0
+    
+    # ========================================================================
+    # Lawnmower Queries
+    # ========================================================================
+    
+    def has_lawnmower(self, row: int) -> bool:
+        """Check if a specific row has an available lawnmower"""
+        for lm in self.lawnmowers:
+            if lm.row == row and lm.is_available:
+                return True
+        return False
+    
+    # ========================================================================
+    # Place Item Queries
+    # ========================================================================
+    
+    def get_graves(self) -> List[PlaceItemInfo]:
+        """Get all grave items on the field"""
+        return [item for item in self.place_items 
+                if not item.is_dead and item.is_grave]

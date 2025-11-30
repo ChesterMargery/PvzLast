@@ -38,6 +38,17 @@ class ZombieInfo:
     at_wave: int  # Wave this zombie spawned in
     height: float = 0.0  # Height offset (for flying zombies)
     
+    # Additional fields from offsets
+    exist_time: int = 0          # Z_EXIST_TIME (0x60)
+    state_countdown: int = 0     # Z_STATE_COUNTDOWN (0x68)
+    is_eating: bool = False      # Z_IS_EAT (0x51)
+    hurt_width: int = 0          # Z_HURT_WIDTH (0x94)
+    hurt_height: int = 0         # Z_HURT_HEIGHT (0x98)
+    bullet_x: int = 0            # Z_BULLET_X (0x8C)
+    bullet_y: int = 0            # Z_BULLET_Y (0x90)
+    attack_x: int = 0            # Z_ATTACK_X (0x9C)
+    attack_y: int = 0            # Z_ATTACK_Y (0xA0)
+    
     # ========================================================================
     # Status Properties
     # ========================================================================
@@ -61,6 +72,16 @@ class ZombieInfo:
     def is_immobilized(self) -> bool:
         """Check if zombie cannot move"""
         return self.is_frozen or self.is_buttered
+    
+    @property
+    def is_dying(self) -> bool:
+        """Check if zombie is in dying state"""
+        return self.state in [1, 2, 3]
+    
+    @property
+    def is_hammering(self) -> bool:
+        """Check if Gargantuar is in hammering state"""
+        return self.state == 70
     
     @property
     def total_hp(self) -> int:
