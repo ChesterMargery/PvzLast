@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from game.state import GameState
 from engine.action import Action, ActionType
 from data.plants import PlantType, SUN_PRODUCING_PLANTS, ATTACKING_PLANTS, DEFENSIVE_PLANTS
+from data.offsets import SceneType
 
 from llm.config import LLMConfig, get_config
 from llm.encoder import StateEncoder
@@ -206,8 +207,11 @@ class LLMPlayer:
         if time.time() - self.state.last_action_time < 0.1:
             return
         
+        # Copy the list to avoid modification during iteration
+        actions_to_process = list(self.state.pending_actions)
+        
         # Get highest priority valid action
-        for action in self.state.pending_actions:
+        for action in actions_to_process:
             if action.is_wait:
                 continue
             
@@ -217,11 +221,14 @@ class LLMPlayer:
             if result.valid:
                 success = await self._execute_action(result.action)
                 if success:
-                    self.state.pending_actions.remove(action)
+                    # Safely remove the action
+                    if action in self.state.pending_actions:
+                        self.state.pending_actions.remove(action)
                     return
             else:
-                # Remove invalid action
-                self.state.pending_actions.remove(action)
+                # Remove invalid action safely
+                if action in self.state.pending_actions:
+                    self.state.pending_actions.remove(action)
                 
                 # Record failure
                 self.encoder.add_action_to_history(
@@ -339,8 +346,9 @@ class LLMPlayer:
             if p.type in DEFENSIVE_PLANTS
         )
         
-        # Count lawnmowers
-        lawnmowers = sum(1 for r in range(5) if game_state.has_lawnmower(r))
+        # Count lawnmowers - scene-aware row count
+        row_count = SceneType.get_row_count(game_state.scene)
+        lawnmowers = sum(1 for r in range(row_count) if game_state.has_lawnmower(r))
         
         self.context.update_summary(
             wave=game_state.wave,

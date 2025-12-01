@@ -13,6 +13,7 @@ from game.plant import PlantInfo
 from game.projectile import ProjectileInfo
 from data.plants import PlantType, PLANT_COST, ATTACKING_PLANTS
 from data.zombies import ZombieType, get_zombie_total_hp
+from data.offsets import SceneType
 
 
 # Plant names mapping
@@ -217,16 +218,17 @@ class StateEncoder:
             lines.append(proj_line)
         lines.append("")
         
-        # Lawnmowers
+        # Lawnmowers - scene-aware row count
+        row_count = SceneType.get_row_count(state.scene)
         lines.append("# ===== 小推车 =====")
-        lawnmower_status = [str(state.has_lawnmower(r)).lower() for r in range(5)]
+        lawnmower_status = [str(state.has_lawnmower(r)).lower() for r in range(row_count)]
         lines.append(f"L: [{', '.join(lawnmower_status)}]")
         lines.append("")
         
-        # Row analysis
+        # Row analysis - scene-aware row count
         lines.append("# ===== 行分析 =====")
         lines.append("R:")
-        for row in range(5):
+        for row in range(row_count):
             analysis = self._analyze_row(state, row)
             warning = "  # ⚠️高威胁" if analysis.threat > 5.0 else ""
             lines.append(f"  - {{r: {row}, atk: {analysis.attacker_count}, "
@@ -237,7 +239,7 @@ class StateEncoder:
         # DPS estimation
         lines.append("# ===== DPS估算 =====")
         lines.append("D:")
-        for row in range(5):
+        for row in range(row_count):
             analysis = self._analyze_row(state, row)
             warning = "  # ⚠️" if analysis.dps == 0 and analysis.incoming_hp > 0 else ""
             lines.append(f"  - {{r: {row}, dps: {analysis.dps:.1f}, incoming: {analysis.incoming_hp}}}{warning}")
@@ -298,8 +300,9 @@ class StateEncoder:
     def _detect_emergencies(self, state: GameState) -> List[Dict[str, Any]]:
         """Detect emergency events"""
         emergencies = []
+        row_count = SceneType.get_row_count(state.scene)
         
-        for row in range(5):
+        for row in range(row_count):
             row_zombies = state.get_zombies_in_row(row)
             
             for zombie in row_zombies:

@@ -79,7 +79,9 @@ class DeepSeekClient:
         except asyncio.TimeoutError:
             return '{"actions": [], "plan": "API超时"}'
         except Exception as e:
-            return f'{{"actions": [], "plan": "API错误: {str(e)}"}}'
+            # Escape special characters in error message to prevent JSON parsing issues
+            error_msg = str(e).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+            return f'{{"actions": [], "plan": "API错误: {error_msg}"}}'
     
     async def _chat_stream(self, messages: List[Dict[str, str]]) -> str:
         """
@@ -126,7 +128,9 @@ class DeepSeekClient:
         except asyncio.TimeoutError:
             return '{"actions": [], "plan": "API超时"}'
         except Exception as e:
-            return f'{{"actions": [], "plan": "API错误: {str(e)}"}}'
+            # Escape special characters in error message to prevent JSON parsing issues
+            error_msg = str(e).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+            return f'{{"actions": [], "plan": "API错误: {error_msg}"}}'
     
     async def chat_with_retry(self, messages: List[Dict[str, str]],
                                max_retries: int = 2) -> str:
@@ -156,7 +160,9 @@ class DeepSeekClient:
             if attempt < max_retries:
                 await asyncio.sleep(0.5)  # Brief delay before retry
         
-        return f'{{"actions": [], "plan": "多次重试失败: {last_error}"}}'
+        # Escape special characters in error message to prevent JSON parsing issues
+        error_msg = str(last_error).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') if last_error else "未知错误"
+        return f'{{"actions": [], "plan": "多次重试失败: {error_msg}"}}'
 
 
 async def create_client(api_key: Optional[str] = None) -> DeepSeekClient:

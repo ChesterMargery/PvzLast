@@ -193,10 +193,17 @@ class AsmInjector:
         
         # Find the plant at this position
         plant_array = self.reader.read_int(board + Offset.PLANT_ARRAY)
+        if plant_array == 0:
+            return False
+            
         plant_max = self.reader.read_int(board + Offset.PLANT_COUNT_MAX)
+        # Validate plant_max is within reasonable bounds (cap at 200 for safety)
+        if plant_max <= 0:
+            return False
+        plant_max = min(plant_max, 200)
         
         plant_addr = None
-        for i in range(min(plant_max, 200)):
+        for i in range(plant_max):
             addr = plant_array + i * Offset.PLANT_SIZE
             if self.reader.read_byte(addr + Offset.P_DEAD):
                 continue
